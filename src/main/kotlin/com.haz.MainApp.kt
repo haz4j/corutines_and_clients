@@ -1,9 +1,15 @@
 import kotlinx.coroutines.*
+import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpUriRequest
+import org.apache.http.concurrent.FutureCallback
 import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.nio.client.HttpAsyncClients
+import org.apache.http.nio.client.HttpAsyncClient
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import kotlin.system.measureTimeMillis
+
 
 fun main() = runBlocking<Unit> {
     val time = measureTimeMillis {
@@ -16,35 +22,46 @@ fun main() = runBlocking<Unit> {
 
 suspend fun doSomethingUsefulOne(): Int {
     println("doSomethingUsefulOne before")
-//    launchClient()
-    delay(1000L) // pretend we are doing something useful here
+    launchClient()
+//    delay(1000L) // pretend we are doing something useful here
     println("doSomethingUsefulOne after")
     return 13
 }
 
 suspend fun doSomethingUsefulTwo(): Int {
     println("doSomethingUsefulTwo before")
-//    launchClient()
-    delay(1000L) // pretend we are doing something useful here, too
+    launchClient()
+//    delay(1000L) // pretend we are doing something useful here, too
     println("doSomethingUsefulTwo after")
     return 29
 }
 
-private fun launchClient() {
+private suspend fun launchClient() {
+    val client = HttpAsyncClients.createDefault()
+    client.start()
+    val request = HttpGet("http://www.google.com")
+    val future = client.execute(request)
+    client.close()
+}
 
+suspend fun HttpAsyncClient.execute(request: HttpUriRequest): HttpResponse {
+    return suspendCancellableCoroutine { cont: CancellableContinuation<HttpResponse> ->
+        val future = this.execute(request, object : FutureCallback<HttpResponse> {
+            override fun completed(result: HttpResponse) {
+                cont.resumeWith(Result.success(result))
+            }
 
-    val client = HttpClients.createDefault()
-    val httpGet = HttpGet("http://www.ya.ru")
-    val response = client.execute(httpGet)
-    val rd = BufferedReader(InputStreamReader(
-            response.entity.content))
+            override fun cancelled() {
+                if (cont.isCancelled) return
+                cont.resumeWith(Result.failure(CancellationException("Cancelled")))
+            }
 
-    val textView = StringBuilder()
-    var line: String? = ""
-    while (rd.readLine().also { line = it } != null) {
-        textView.append(line)
+            override fun failed(ex: Exception) {
+                cont.resumeWith(Result.failure(ex))
+            }
+        })
+
+        cont.cancelFutureOnCancellation(future);
+        Unit
     }
-
-//    println(textView.toString())
-//    println("client finished")
 }
