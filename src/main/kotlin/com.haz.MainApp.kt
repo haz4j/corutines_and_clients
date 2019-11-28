@@ -10,33 +10,34 @@ import kotlin.system.measureTimeMillis
 
 const val URI = "http://www.ya.ru"
 val isAsyncMode = false
-val isBlockMode = false
+val isBlockMode = true
 
 /*
-
-stub - 1051 ms
+block 2006
+async 1558
+stub 1047
  */
 
 fun main() = runBlocking<Unit> {
     val time = measureTimeMillis {
-        val one = async { firstClient() }
-        val two = async { secondClient() }
+        val one = async { launchClient(1) }
+        val two = async { launchClient(2) }
+        val three = async { launchClient(3) }
+        val four = async { launchClient(4) }
+        val five = async { launchClient(5) }
         one.await()
         two.await()
+        three.await()
+        four.await()
+        five.await()
     }
     println("Completed in $time ms")
 }
 
-suspend fun firstClient() {
-    println("firstClient before")
+suspend fun launchClient(step: Int) {
+    println("step $step before")
     launchClient()
-    println("firstClient after")
-}
-
-suspend fun secondClient() {
-    println("secondClient before")
-    launchClient()
-    println("secondClient after")
+    println("step $step after")
 }
 
 suspend fun launchClient() {
