@@ -3,12 +3,15 @@ import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.concurrent.FutureCallback
+import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.nio.client.HttpAsyncClients
 import org.apache.http.nio.client.HttpAsyncClient
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import kotlin.system.measureTimeMillis
 
-val client = HttpAsyncClients.createDefault()
-
+val isAsyncMode = false
+val isBlockMode = false
 
 fun main() = runBlocking<Unit> {
     val time = measureTimeMillis {
@@ -22,7 +25,6 @@ fun main() = runBlocking<Unit> {
 suspend fun doSomethingUsefulOne(): Int {
     println("doSomethingUsefulOne before")
     launchClient()
-//    delay(1000L) // pretend we are doing something useful here
     println("doSomethingUsefulOne after")
     return 13
 }
@@ -30,16 +32,45 @@ suspend fun doSomethingUsefulOne(): Int {
 suspend fun doSomethingUsefulTwo(): Int {
     println("doSomethingUsefulTwo before")
     launchClient()
-//    delay(1000L) // pretend we are doing something useful here, too
     println("doSomethingUsefulTwo after")
     return 29
 }
 
-private suspend fun launchClient() {
+suspend fun launchClient() {
+    when {
+        isAsyncMode -> {
+            launchClientAsync()
+        }
+        isBlockMode -> {
+            launchClientBlock()
+        }
+        else -> {
+            delay(1000L) // pretend we are doing something useful here
+        }
+    }
+}
+
+private suspend fun launchClientAsync() {
+    val client = HttpAsyncClients.createDefault()
     client.start()
-    val request = HttpGet("http://www.google.com")
+    val request = HttpGet("http://www.ya.ru")
     val future = client.execute(request)
     client.close()
+}
+
+private suspend fun launchClientBlock() {
+    val client = HttpClients.createDefault()
+    val httpGet = HttpGet("http://www.ya.ru")
+    val response = client.execute(httpGet)
+    val rd = BufferedReader(InputStreamReader(
+            response.entity.content))
+
+    val textView = StringBuilder()
+    var line: String? = ""
+    while (rd.readLine().also { line = it } != null) {
+        textView.append(line)
+    }
+
 }
 
 suspend fun HttpAsyncClient.execute(request: HttpUriRequest): HttpResponse {
