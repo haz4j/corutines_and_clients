@@ -3,12 +3,11 @@ import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.concurrent.FutureCallback
-import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.nio.client.HttpAsyncClients
 import org.apache.http.nio.client.HttpAsyncClient
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import kotlin.system.measureTimeMillis
+
+val client = HttpAsyncClients.createDefault()
 
 
 fun main() = runBlocking<Unit> {
@@ -37,7 +36,6 @@ suspend fun doSomethingUsefulTwo(): Int {
 }
 
 private suspend fun launchClient() {
-    val client = HttpAsyncClients.createDefault()
     client.start()
     val request = HttpGet("http://www.google.com")
     val future = client.execute(request)
