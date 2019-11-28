@@ -6,34 +6,37 @@ import org.apache.http.concurrent.FutureCallback
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.impl.nio.client.HttpAsyncClients
 import org.apache.http.nio.client.HttpAsyncClient
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import kotlin.system.measureTimeMillis
 
+const val URI = "http://www.ya.ru"
 val isAsyncMode = false
 val isBlockMode = false
 
+/*
+
+stub - 1051 ms
+ */
+
 fun main() = runBlocking<Unit> {
     val time = measureTimeMillis {
-        val one = async { doSomethingUsefulOne() }
-        val two = async { doSomethingUsefulTwo() }
-        println("The answer is ${one.await() + two.await()}")
+        val one = async { firstClient() }
+        val two = async { secondClient() }
+        one.await()
+        two.await()
     }
     println("Completed in $time ms")
 }
 
-suspend fun doSomethingUsefulOne(): Int {
-    println("doSomethingUsefulOne before")
+suspend fun firstClient() {
+    println("firstClient before")
     launchClient()
-    println("doSomethingUsefulOne after")
-    return 13
+    println("firstClient after")
 }
 
-suspend fun doSomethingUsefulTwo(): Int {
-    println("doSomethingUsefulTwo before")
+suspend fun secondClient() {
+    println("secondClient before")
     launchClient()
-    println("doSomethingUsefulTwo after")
-    return 29
+    println("secondClient after")
 }
 
 suspend fun launchClient() {
@@ -53,24 +56,15 @@ suspend fun launchClient() {
 private suspend fun launchClientAsync() {
     val client = HttpAsyncClients.createDefault()
     client.start()
-    val request = HttpGet("http://www.ya.ru")
-    val future = client.execute(request)
+    val request = HttpGet(URI)
+    client.execute(request)
     client.close()
 }
 
-private suspend fun launchClientBlock() {
+private fun launchClientBlock() {
     val client = HttpClients.createDefault()
-    val httpGet = HttpGet("http://www.ya.ru")
-    val response = client.execute(httpGet)
-    val rd = BufferedReader(InputStreamReader(
-            response.entity.content))
-
-    val textView = StringBuilder()
-    var line: String? = ""
-    while (rd.readLine().also { line = it } != null) {
-        textView.append(line)
-    }
-
+    val httpGet = HttpGet(URI)
+    client.execute(httpGet)
 }
 
 suspend fun HttpAsyncClient.execute(request: HttpUriRequest): HttpResponse {
