@@ -10,39 +10,31 @@ import org.apache.http.impl.nio.client.HttpAsyncClients
 import org.apache.http.nio.client.HttpAsyncClient
 import kotlin.system.measureTimeMillis
 
-enum class Mode{
+enum class Mode {
     stub,
     block,
     async,
     ktor
 }
 
-val mode = Mode.ktor
+val mode = Mode.async
+const val maxSteps = 20
 const val URI = "http://www.ya.ru"
-val isAsyncMode = false
-val isBlockMode = false
-val isKtorMode = true
 
 /*
-stub 1047
-block 2006
-async 1558
-ktor 1938
+for 20 steps
+
+stub 1046 ms
+block 4735 ms
+async 2109 ms
+ktor 2500 ms(
+
  */
 
-fun main() = runBlocking<Unit> {
+fun main() = runBlocking {
 
     val time = measureTimeMillis {
-        val one = async { launchClient(1) }
-        val two = async { launchClient(2) }
-        val three = async { launchClient(3) }
-        val four = async { launchClient(4) }
-        val five = async { launchClient(5) }
-        one.await()
-        two.await()
-        three.await()
-        four.await()
-        five.await()
+        (1..maxSteps).map { async { launchClient(it) } }.forEach { t -> t.await() }
     }
     println("Completed in $time ms")
 }
