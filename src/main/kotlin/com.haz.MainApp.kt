@@ -1,3 +1,5 @@
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
 import kotlinx.coroutines.*
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
@@ -8,17 +10,28 @@ import org.apache.http.impl.nio.client.HttpAsyncClients
 import org.apache.http.nio.client.HttpAsyncClient
 import kotlin.system.measureTimeMillis
 
+enum class Mode{
+    stub,
+    block,
+    async,
+    ktor
+}
+
+val mode = Mode.ktor
 const val URI = "http://www.ya.ru"
 val isAsyncMode = false
-val isBlockMode = true
+val isBlockMode = false
+val isKtorMode = true
 
 /*
+stub 1047
 block 2006
 async 1558
-stub 1047
+ktor 1938
  */
 
 fun main() = runBlocking<Unit> {
+
     val time = measureTimeMillis {
         val one = async { launchClient(1) }
         val two = async { launchClient(2) }
@@ -41,15 +54,18 @@ suspend fun launchClient(step: Int) {
 }
 
 suspend fun launchClient() {
-    when {
-        isAsyncMode -> {
-            launchClientAsync()
+    when (mode) {
+        Mode.stub -> {
+            delay(1000L)
         }
-        isBlockMode -> {
+        Mode.block -> {
             launchClientBlock()
         }
-        else -> {
-            delay(1000L) // pretend we are doing something useful here
+        Mode.async -> {
+            launchClientAsync()
+        }
+        Mode.ktor -> {
+            launchClientKtor()
         }
     }
 }
@@ -66,6 +82,12 @@ private fun launchClientBlock() {
     val client = HttpClients.createDefault()
     val httpGet = HttpGet(URI)
     client.execute(httpGet)
+}
+
+suspend fun launchClientKtor() {
+    val client = HttpClient()
+    client.get<String>(URI)
+    client.close()
 }
 
 suspend fun HttpAsyncClient.execute(request: HttpUriRequest): HttpResponse {
