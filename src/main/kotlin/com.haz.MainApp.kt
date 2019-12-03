@@ -1,6 +1,9 @@
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import kotlinx.coroutines.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpUriRequest
@@ -14,10 +17,11 @@ enum class Mode {
     stub,
     block,
     async,
-    ktor
+    ktor,
+    okHttp
 }
 
-val mode = Mode.async
+val mode = Mode.okHttp
 const val maxSteps = 20
 const val URI = "http://www.ya.ru"
 
@@ -59,7 +63,20 @@ suspend fun launchClient() {
         Mode.ktor -> {
             launchClientKtor()
         }
+        Mode.okHttp -> {
+            launchClientOkHttp()
+        }
     }
+}
+
+private suspend fun launchClientOkHttp() {
+    val client = OkHttpClient()
+    val request: Request = Request.Builder()
+            .url(URI)
+            .build()
+
+    val response: Response = client.newCall(request).execute()
+    println(response.body.toString())
 }
 
 private suspend fun launchClientAsync() {
