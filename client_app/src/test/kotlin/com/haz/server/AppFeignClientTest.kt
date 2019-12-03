@@ -7,8 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest()
 class AppFeignClientTest {
 
-    //    @Autowired
-//    private lateinit var client: AppFeignClient
     @Autowired
     private lateinit var firstApi: FirstApi
 
