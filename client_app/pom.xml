@@ -14,7 +14,25 @@
     <artifactId>client_app</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+
+    <properties>
+        <ktor.version>1.2.5</ktor.version>
+    </properties>
+
+
     <dependencies>
+<!--        <dependency>-->
+<!--            <groupId>io.ktor</groupId>-->
+<!--            <artifactId>ktor-client</artifactId>-->
+<!--            <version>${ktor.version}</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-apache</artifactId>
+            <version>${ktor.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.haz</groupId>
             <artifactId>server_app</artifactId>
