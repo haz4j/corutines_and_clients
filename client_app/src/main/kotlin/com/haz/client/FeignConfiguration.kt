@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @AutoConfigureAfter(FeignConfiguration::class)
-public class FeignConfiguration {
+public open class FeignConfiguration {
 
     @Bean
-    public fun firstApi(): FirstApi {
+    public open fun firstApi(): FirstApi {
         val client = ApacheHttpClient()
         return Feign.builder()
                 .client(client)

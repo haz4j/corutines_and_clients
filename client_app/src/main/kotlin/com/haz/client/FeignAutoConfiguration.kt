@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class FeignAutoConfiguration {
+open class FeignAutoConfiguration {
     @Bean
-    public fun httpClient(): CloseableHttpClient {
+    public open fun httpClient(): CloseableHttpClient {
         return HttpClientBuilder.create().build()
     }
 }
