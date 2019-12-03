@@ -3,6 +3,7 @@ package com.haz.client
 import com.haz.server.FirstApi
 import feign.Feign
 import feign.httpclient.ApacheHttpClient
+import org.apache.http.impl.client.CloseableHttpClient
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,10 +13,9 @@ import org.springframework.context.annotation.Configuration
 public open class FeignConfiguration {
 
     @Bean
-    public open fun firstApi(): FirstApi {
-        val client = ApacheHttpClient()
+    public open fun firstApi(httpClient: CloseableHttpClient): FirstApi {
         return Feign.builder()
-                .client(client)
+                .client(ApacheHttpClient(httpClient))
                 .target(FirstApi::class.java, "http://localhost:8080/first_controller")
     }
 }
