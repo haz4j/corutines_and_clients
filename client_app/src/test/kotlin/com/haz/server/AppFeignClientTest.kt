@@ -1,17 +1,20 @@
-package com.haz.app
+package com.haz.server
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest
+@SpringBootTest()
 class AppFeignClientTest {
 
+    //    @Autowired
+//    private lateinit var client: AppFeignClient
     @Autowired
-    private lateinit var client: AppFeignClient
+    private lateinit var firstApi: FirstApi
+
 
     @Test
     fun getTest(){
-        println(client.getFirstController())
+        println(firstApi.firstController())
     }
 }

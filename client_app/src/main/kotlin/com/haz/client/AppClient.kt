@@ -1,4 +1,4 @@
-package com.haz.app
+package com.haz.client
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
