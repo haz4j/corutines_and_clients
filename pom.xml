@@ -11,6 +11,7 @@
     <modules>
         <module>clients</module>
         <module>app</module>
+        <module>client_app</module>
     </modules>
 
     <properties>
